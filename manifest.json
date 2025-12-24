@@ -1,0 +1,9 @@
+{
+  "name": "Yapper Private",
+  "short_name": "Yapper",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#f0f2f5",
+  "theme_color": "#1877f2",
+  "icons": [{ "src": "logo.png", "sizes": "512x512", "type": "image/png" }]
+}
