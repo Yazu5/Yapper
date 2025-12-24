@@ -3,99 +3,84 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Yapper</title>
+    <title>Yapper Private</title>
     <link rel="manifest" href="manifest.json">
     <link rel="icon" type="image/png" href="logo.png">
     <style>
         :root {
-            --bg-body: #f0f2f5;
-            --bg-card: #ffffff;
-            --text-main: #1c1e21;
-            --text-sub: #65676b;
-            --border: #dddfe2;
-            --header-bg: #ffffff;
-            --msg-received: #e4e6eb;
-            --msg-sent: #0084ff;
-            --sent-text: #ffffff;
-            --received-text: #050505;
+            --bg-body: #f0f2f5; --bg-card: #ffffff; --text-main: #1c1e21;
+            --text-sub: #65676b; --border: #dddfe2; --header-bg: #ffffff;
+            --msg-received: #e4e6eb; --msg-sent: #0084ff; --sent-text: #ffffff;
         }
-
         [data-theme="dark"] {
-            --bg-body: #18191a;
-            --bg-card: #242526;
-            --text-main: #e4e6eb;
-            --text-sub: #b0b3b8;
-            --border: #3e4042;
-            --header-bg: #242526;
+            --bg-body: #18191a; --bg-card: #242526; --text-main: #e4e6eb;
+            --text-sub: #b0b3b8; --border: #3e4042; --header-bg: #242526;
             --msg-received: #3e4042;
-            --msg-sent: #0084ff;
-            --sent-text: #ffffff;
-            --received-text: #e4e6eb;
         }
 
-        body { font-family: Helvetica, Arial, sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; display: flex; flex-direction: column; height: 100vh; transition: background 0.3s; }
+        body { font-family: Helvetica, Arial, sans-serif; background: var(--bg-body); color: var(--text-main); margin: 0; height: 100vh; display: flex; flex-direction: column; transition: 0.3s; overflow: hidden; }
+        
+        #auth-view, #contacts-view, #chat-view { display: none; flex-direction: column; height: 100%; }
+        
+        .login-card { background: var(--bg-card); padding: 20px; border-radius: 8px; box-shadow: 0 8px 16px rgba(0,0,0,0.1); width: 90%; max-width: 396px; text-align: center; margin: auto; }
+        .login-card input { width: 90%; padding: 12px; margin-bottom: 10px; border: 1px solid var(--border); border-radius: 6px; background: var(--bg-card); color: var(--text-main); }
+        #btn-login { width: 100%; background: #1877f2; border: none; color: white; padding: 12px; font-weight: bold; border-radius: 6px; cursor: pointer; }
 
-        #auth-view { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%; padding: 20px; }
-        .login-card { 
-            background: var(--bg-card); padding: 20px; border-radius: 8px; 
-            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1); width: 100%; max-width: 396px; text-align: center;
-        }
-        .login-card input {
-            width: 90%; padding: 14px; margin-bottom: 12px; border: 1px solid var(--border); 
-            border-radius: 6px; font-size: 16px; background: var(--bg-card); color: var(--text-main); outline: none;
-        }
-        #btn-login { width: 100%; background: #1877f2; border: none; border-radius: 6px; color: white; font-size: 20px; font-weight: bold; padding: 12px; cursor: pointer; }
-        .divider { border-bottom: 1px solid var(--border); margin: 20px 0; }
-        #btn-signup { background: #42b72a; border: none; border-radius: 6px; color: white; font-size: 17px; font-weight: bold; padding: 12px 16px; cursor: pointer; }
+        .contact-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; justify-content: space-between; background: var(--bg-card); }
+        .contact-info { display: flex; align-items: center; gap: 10px; }
+        .unread-badge { background: #fa3e3e; color: white; border-radius: 50%; padding: 2px 8px; font-size: 12px; font-weight: bold; display: none; }
+        .avatar { width: 40px; height: 40px; border-radius: 50%; background: #0084ff; color: white; display: flex; align-items: center; justify-content: center; font-weight: bold; }
 
-        #chat-view { display: none; flex-direction: column; height: 100%; }
         .header { padding: 10px 15px; background: var(--header-bg); border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
         #messages { flex: 1; overflow-y: auto; padding: 15px; display: flex; flex-direction: column; gap: 8px; }
-        
-        .msg-container { display: flex; flex-direction: column; margin-bottom: 4px; }
-        .msg { padding: 8px 12px; border-radius: 18px; font-size: 15px; max-width: 75%; line-height: 1.4; }
+        .msg { padding: 8px 12px; border-radius: 18px; max-width: 70%; font-size: 15px; word-wrap: break-word; }
         .sent { background: var(--msg-sent); color: var(--sent-text); align-self: flex-end; border-bottom-right-radius: 4px; }
-        .received { background: var(--msg-received); color: var(--received-text); align-self: flex-start; border-bottom-left-radius: 4px; }
-        
-        .user-label { font-size: 11px; color: var(--text-sub); margin-bottom: 2px; }
+        .received { background: var(--msg-received); align-self: flex-start; border-bottom-left-radius: 4px; }
         .input-area { padding: 10px; background: var(--header-bg); display: flex; gap: 10px; border-top: 1px solid var(--border); }
-        #msg-input { flex: 1; padding: 10px 15px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; }
-        
-        .theme-toggle { background: none; border: 1px solid var(--border); color: var(--text-main); padding: 5px 10px; border-radius: 15px; cursor: pointer; font-size: 12px; margin-right: 10px; }
+        #msg-input { flex: 1; padding: 10px; border-radius: 20px; border: 1px solid var(--border); background: var(--bg-body); color: var(--text-main); outline: none; }
     </style>
 </head>
 <body>
-    <div id="auth-view">
-        <div style="margin-bottom: 20px; color: #1877f2; font-size: 40px; font-weight: bold;">Yapper</div>
+
+    <div id="auth-view" style="display: flex;">
         <div class="login-card">
-            <input type="email" id="email" placeholder="Email address">
+            <h1 style="color: #1877f2;">Yapper</h1>
+            <input type="email" id="email" placeholder="Email">
             <input type="password" id="password" placeholder="Password">
             <button id="btn-login">Log In</button>
-            <div class="divider"></div>
-            <button id="btn-signup">Create new account</button>
+            <hr style="margin: 20px 0; border: 0.5px solid var(--border);">
+            <button id="btn-signup" style="background:#42b72a; color:white; border:none; padding:10px; border-radius:6px; font-weight:bold; cursor:pointer;">Create account</button>
         </div>
+    </div>
+
+    <div id="contacts-view">
+        <div class="header">
+            <strong>Chats</strong>
+            <div>
+                <button id="theme-btn" style="background:none; border:1px solid var(--border); border-radius:15px; padding:5px 10px; color:var(--text-main); cursor:pointer;">🌙</button>
+                <button id="btn-logout" style="background:none; border:none; color:#1877f2; font-weight:bold; cursor:pointer;">Log Out</button>
+            </div>
+        </div>
+        <div id="user-list" style="flex: 1; overflow-y: auto;"></div>
     </div>
 
     <div id="chat-view">
         <div class="header">
-            <div><strong>Yapper</strong><div id="status-bar" style="font-size: 11px; color: #42b72a;"></div></div>
-            <div>
-                <button class="theme-toggle" id="theme-btn">🌙 Dark Mode</button>
-                <button id="btn-logout" style="background:none; border:none; color:#1877f2; font-weight:bold; cursor:pointer;">Log Out</button>
-            </div>
+            <button id="btn-back" style="background:none; border:none; color:#0084ff; font-weight:bold; cursor:pointer;">← Back</button>
+            <strong id="chat-with-name">Chat</strong>
+            <div style="width: 40px;"></div>
         </div>
         <div id="messages"></div>
-        <div id="typing-indicator" style="padding: 5px 15px; font-size: 12px; color: var(--text-sub);"></div>
         <div class="input-area">
             <input type="text" id="msg-input" placeholder="Aa">
-            <button id="btn-send" style="background:none; border:none; color:#0084ff; font-weight:bold; font-size:16px; cursor:pointer;">Send</button>
+            <button id="btn-send" style="background:none; border:none; color:#0084ff; font-weight:bold; cursor:pointer;">Send</button>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-app.js";
         import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, query, orderBy, onSnapshot, serverTimestamp, doc, setDoc, getDocs, limit } from "https://www.gstatic.com/firebasejs/12.7.0/firebase-firestore.js";
 
         const firebaseConfig = {
             apiKey: "AIzaSyB98LWEjfYaG_wbkMkwo0QJ4ch8VhQO-IA",
@@ -110,75 +95,113 @@
         const auth = getAuth(app);
         const db = getFirestore(app);
 
-        // Theme Memory
+        let activeChatId = null;
+        let unsubscribeMessages = null;
+
+        // Theme Logic
         const themeBtn = document.getElementById('theme-btn');
-        const savedTheme = localStorage.getItem('yapper-theme') || 'light';
-        document.body.setAttribute('data-theme', savedTheme);
-        themeBtn.innerText = savedTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
-
-        themeBtn.onclick = () => {
-            const isDark = document.body.getAttribute('data-theme') === 'dark';
-            const nextTheme = isDark ? 'light' : 'dark';
-            document.body.setAttribute('data-theme', nextTheme);
-            localStorage.setItem('yapper-theme', nextTheme);
-            themeBtn.innerText = nextTheme === 'dark' ? '☀️ Light Mode' : '🌙 Dark Mode';
+        const updateTheme = (theme) => {
+            document.body.setAttribute('data-theme', theme);
+            themeBtn.innerText = theme === 'dark' ? '☀️' : '🌙';
+            localStorage.setItem('yapper-theme', theme);
         };
+        updateTheme(localStorage.getItem('yapper-theme') || 'light');
+        themeBtn.onclick = () => updateTheme(document.body.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
 
+        // Auth
         onAuthStateChanged(auth, (user) => {
             if (user) {
-                document.getElementById('auth-view').style.display = 'none';
-                document.getElementById('chat-view').style.display = 'flex';
-                listenForYaps();
-                setUserPresence();
+                showView('contacts-view');
+                setDoc(doc(db, "users", user.uid), { email: user.email, uid: user.uid }, { merge: true });
+                loadContacts();
             } else {
-                document.getElementById('auth-view').style.display = 'flex';
-                document.getElementById('chat-view').style.display = 'none';
+                showView('auth-view');
             }
         });
 
-        document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, email.value, password.value).catch(err => alert(err.message));
-        document.getElementById('btn-signup').onclick = () => createUserWithEmailAndPassword(auth, email.value, password.value).catch(err => alert(err.message));
-        document.getElementById('btn-logout').onclick = () => signOut(auth);
+        function showView(id) {
+            ['auth-view', 'contacts-view', 'chat-view'].forEach(v => document.getElementById(v).style.display = v === id ? 'flex' : 'none');
+        }
 
-        function listenForYaps() {
-            const q = query(collection(db, "messages"), orderBy("timestamp", "asc"));
-            onSnapshot(q, (snapshot) => {
+        // Contacts with Unread Logic
+        async function loadContacts() {
+            const snap = await getDocs(collection(db, "users"));
+            const list = document.getElementById('user-list');
+            list.innerHTML = '';
+            
+            snap.forEach(u => {
+                if (u.id === auth.currentUser.uid) return;
+                const data = u.data();
+                const chatId = [auth.currentUser.uid, data.uid].sort().join('_');
+                
+                const div = document.createElement('div');
+                div.className = 'contact-item';
+                div.innerHTML = `
+                    <div class="contact-info">
+                        <div class="avatar">${data.email[0].toUpperCase()}</div>
+                        <div>${data.email.split('@')[0]}</div>
+                    </div>
+                    <div id="badge-${chatId}" class="unread-badge">!</div>
+                `;
+                
+                // Listen for new messages to show badge
+                onSnapshot(query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "desc"), limit(1)), (mSnap) => {
+                    if (!mSnap.empty && activeChatId !== chatId) {
+                        const lastMsg = mSnap.docs[0].data();
+                        if (lastMsg.sender !== auth.currentUser.uid) {
+                            document.getElementById(`badge-${chatId}`).style.display = 'block';
+                        }
+                    }
+                });
+
+                div.onclick = () => startChat(data, chatId);
+                list.appendChild(div);
+            });
+        }
+
+        // Chat
+        function startChat(friend, chatId) {
+            activeChatId = chatId;
+            document.getElementById(`badge-${chatId}`).style.display = 'none';
+            showView('chat-view');
+            document.getElementById('chat-with-name').innerText = friend.email.split('@')[0];
+            
+            if (unsubscribeMessages) unsubscribeMessages();
+            const q = query(collection(db, "chats", chatId, "messages"), orderBy("timestamp", "asc"));
+            unsubscribeMessages = onSnapshot(q, (snap) => {
                 const msgDiv = document.getElementById('messages');
                 msgDiv.innerHTML = '';
-                snapshot.forEach(d => {
-                    const data = d.data();
-                    const isMe = data.uid === auth.currentUser.uid;
-                    const container = document.createElement('div');
-                    container.className = 'msg-container';
-                    container.style.alignItems = isMe ? 'flex-end' : 'flex-start';
-                    container.innerHTML = `${!isMe ? `<small class="user-label">${data.user.split('@')[0]}</small>` : ''}<div class="msg ${isMe ? 'sent' : 'received'}">${data.text}</div>`;
-                    msgDiv.appendChild(container);
+                snap.forEach(d => {
+                    const m = d.data();
+                    const isMe = m.sender === auth.currentUser.uid;
+                    const msgEl = document.createElement('div');
+                    msgEl.className = `msg ${isMe ? 'sent' : 'received'}`;
+                    msgEl.innerText = m.text;
+                    msgDiv.appendChild(msgEl);
                 });
                 msgDiv.scrollTop = msgDiv.scrollHeight;
             });
         }
 
-        document.getElementById('btn-send').onclick = () => {
+        document.getElementById('btn-send').onclick = async () => {
             const input = document.getElementById('msg-input');
-            if (input.value.trim()) {
-                addDoc(collection(db, "messages"), {
-                    text: input.value, user: auth.currentUser.email, uid: auth.currentUser.uid, timestamp: serverTimestamp()
+            if (input.value.trim() && activeChatId) {
+                await addDoc(collection(db, "chats", activeChatId, "messages"), {
+                    text: input.value,
+                    sender: auth.currentUser.uid,
+                    timestamp: serverTimestamp()
                 });
                 input.value = '';
             }
         };
 
-        function setUserPresence() {
-            const userRef = doc(db, "presence", auth.currentUser.uid);
-            setDoc(userRef, { email: auth.currentUser.email });
-            window.addEventListener('beforeunload', () => deleteDoc(userRef));
-            onSnapshot(collection(db, "presence"), (snap) => {
-                let count = 0; snap.forEach(() => count++);
-                document.getElementById('status-bar').innerText = `${count} yappers online`;
-            });
-        }
-
-        if ('serviceWorker' in navigator) { navigator.serviceWorker.register('/sw.js'); }
+        document.getElementById('btn-back').onclick = () => {
+            activeChatId = null;
+            showView('contacts-view');
+        };
+        document.getElementById('btn-login').onclick = () => signInWithEmailAndPassword(auth, email.value, password.value).catch(alert);
+        document.getElementById('btn-signup').onclick = () => createUserWithEmailAndPassword(auth, email.value, password.value).catch(alert);
+        document.getElementById('btn-logout').onclick = () => signOut(auth);
     </script>
 </body>
 </html>
